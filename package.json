@@ -11,5 +11,9 @@
   "scripts": {
     "test": "node fdpassing.js"
   },
-  "gypfile": true
+  "gypfile": true,
+  "repository" : {
+  "type" : "git",
+    "url" : "https://github.com/hungchenchang/fdpassing.git"
+  }
 }
