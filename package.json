@@ -1,0 +1,15 @@
+{
+  "name": "fdpassing",
+  "version": "0.0.1",
+  "description": "Node.js fdpassing addon",
+  "main": "fdpassing.js",
+  "private": true,
+  "dependencies": {
+    "bindings": "~1.2.1",
+    "nan": "^1.3.0"
+  },
+  "scripts": {
+    "test": "node fdpassing.js"
+  },
+  "gypfile": true
+}
