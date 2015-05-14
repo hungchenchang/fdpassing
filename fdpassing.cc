@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include <nan.h>
 
 using namespace v8;
@@ -35,7 +34,6 @@ int sock_fd_write(int sock, void *buf, ssize_t buflen, int fd)
 	*((int *) CMSG_DATA(cmsg)) = fd;
 	
 	size = sendmsg(sock, &msg, 0);
-	close(fd);
 	return size;
 }
 
