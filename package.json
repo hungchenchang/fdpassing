@@ -11,8 +11,9 @@
     "test": "node fdpassing.js"
   },
   "gypfile": true,
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/hungchenchang/fdpassing.git"
-  }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hungchenchang/fdpassing.git"
+  },
+  "license": "MIT"
 }
