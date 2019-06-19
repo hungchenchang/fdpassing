@@ -37,35 +37,37 @@ int sock_fd_write(int sock, void *buf, ssize_t buflen, int fd)
 	return size;
 }
 
-
-NAN_METHOD(fdTransfer) {
-  NanScope();
+void fdTransfer(const Nan::FunctionCallbackInfo<v8::Value>& args)
+{
+  //printf("fdTransfer is caled args = %d\n", args.Length());
 
   if (args.Length() != 3) {
-    NanThrowTypeError("Wrong number of arguments");
-    NanReturnUndefined();
+    Nan::ThrowTypeError("Wrong number of arguments");
+    return;
   }
 
   if (!args[0]->IsInt32() || !args[2]->IsInt32()) {
-    NanThrowTypeError("Wrong arguments");
-    NanReturnUndefined();
+    Nan::ThrowTypeError("Wrong arguments");
+    return;
   }
 
   int pipe = args[0]->IntegerValue();
   v8::Local<v8::String> str = args[1]->ToString();
   int buflen = str->Utf8Length();
+  //printf("buflen = %d\n", buflen);
   char *buf = new char[buflen+4];
   str->WriteUtf8(buf, buflen);
+  //printf("bu = %s\n", buf);
   int fd = args[2]->IntegerValue();
   int result = sock_fd_write(pipe, buf, buflen, fd);
-  Local<Integer> num = NanNew(result);
+  v8::Local<v8::Number> num = Nan::New(result);
 
   delete [] buf;
-  NanReturnValue(num);
+  args.GetReturnValue().Set(num);
 }
 
 void Init(Handle<Object> exports) {
-  exports->Set(NanNew("fdTransfer"), NanNew<FunctionTemplate>(fdTransfer)->GetFunction());
+  exports->Set(Nan::New("fdTransfer").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(fdTransfer)->GetFunction());
 }
 
 NODE_MODULE(fdpassing, Init)
