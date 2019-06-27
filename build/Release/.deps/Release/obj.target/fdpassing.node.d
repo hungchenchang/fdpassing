@@ -1,1 +1,0 @@
-cmd_Release/obj.target/fdpassing.node := flock ./Release/linker.lock g++ -shared -pthread -rdynamic -m64  -Wl,-soname=fdpassing.node -o Release/obj.target/fdpassing.node -Wl,--start-group Release/obj.target/fdpassing/fdpassing.o -Wl,--end-group 
