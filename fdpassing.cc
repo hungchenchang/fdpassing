@@ -1,6 +1,7 @@
-#include <nan.h>
+#include <sys/socket.h>
+#include <stdio.h>
 
-using namespace v8;
+//#define __NAN__
 
 int sock_fd_write(int sock, void *buf, ssize_t buflen, int fd)
 {
@@ -37,6 +38,13 @@ int sock_fd_write(int sock, void *buf, ssize_t buflen, int fd)
 	return size;
 }
 
+#ifdef __NAN__
+
+#include <nan.h>
+#include <node.h>
+using namespace v8;
+using namespace Nan;
+
 void fdTransfer(const Nan::FunctionCallbackInfo<v8::Value>& args)
 {
   //printf("fdTransfer is caled args = %d\n", args.Length());
@@ -71,3 +79,59 @@ void Init(Handle<Object> exports) {
 }
 
 NODE_MODULE(fdpassing, Init)
+
+#else
+
+#define NAPI_VERSION 3
+#include <node_api.h>
+
+napi_value fdTransfer(napi_env env, napi_callback_info args) 
+{
+    napi_status status;
+
+    size_t argc = 3;
+    napi_value argv[3];
+
+    status = napi_get_cb_info(env, args, &argc, argv, NULL, NULL);
+    if (status != napi_ok) return NULL;
+
+    int pipe, fd;
+    size_t buflen;
+    status = napi_get_value_int32(env, argv[0], &pipe);
+    if (status != napi_ok) return NULL;
+    status  = napi_get_value_int32(env, argv[2], &fd);
+    if (status != napi_ok) return NULL;
+    status = napi_get_value_string_utf8(env, argv[1], NULL, 0, &buflen);
+    if (status != napi_ok) return NULL;
+    printf("buflen = %d\n", (int)buflen);
+    char *buf = new char[buflen+4];
+    status = napi_get_value_string_utf8(env, argv[1], buf, buflen+4, &buflen);
+    if (status != napi_ok) return NULL;
+    printf("bu = %s\n", buf);
+
+    int result = sock_fd_write(pipe, buf, buflen, fd);
+    delete [] buf;
+
+    napi_value retvalue;
+    status = napi_create_int64(env, result, &retvalue);
+    if (status != napi_ok) return nullptr;
+    return retvalue;
+}
+
+
+napi_value Init(napi_env env, napi_value exports) 
+{
+  napi_status status;
+  napi_value fn;
+
+  status = napi_create_function(env, nullptr, 0, fdTransfer, nullptr, &fn);
+  if (status != napi_ok) return nullptr;
+
+  status = napi_set_named_property(env, exports, "fdTransfer", fn);
+  if (status != napi_ok) return nullptr;
+  return exports;
+}
+
+NAPI_MODULE(fdpassing, Init)
+
+#endif
